@@ -44,7 +44,10 @@ body {
     border-color: var(--border-color) !important;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+}
+
+.sidebar-footer {
+    margin-top: auto;
 }
 
 #sidebar-wrapper .sidebar-heading {

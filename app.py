@@ -70,7 +70,7 @@ def get_analytics():
             SELECT DATE_FORMAT(ride_date, '%%M %%d') as label, SUM(fare) as val 
             FROM rides 
             WHERE status = 'Completed' 
-            GROUP BY DATE(ride_date) 
+            GROUP BY DATE(ride_date), DATE_FORMAT(ride_date, '%%M %%d') 
             ORDER BY DATE(ride_date) ASC
         """)
         
@@ -78,7 +78,7 @@ def get_analytics():
         volume_data = db_helper.execute_query("""
             SELECT DATE_FORMAT(ride_date, '%%M %%d') as label, COUNT(*) as val 
             FROM rides 
-            GROUP BY DATE(ride_date) 
+            GROUP BY DATE(ride_date), DATE_FORMAT(ride_date, '%%M %%d') 
             ORDER BY DATE(ride_date) ASC
         """)
         
@@ -261,7 +261,7 @@ def list_reports():
             SELECT DATE_FORMAT(ride_date, '%%Y-%%m') as month, SUM(fare) as total 
             FROM rides 
             WHERE status = 'Completed' 
-            GROUP BY month 
+            GROUP BY DATE_FORMAT(ride_date, '%%Y-%%m') 
             ORDER BY month DESC
         """)
         
