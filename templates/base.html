@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}UrbanMove Ride-Sharing Cloud Dashboard{% endblock %}</title>
+    
+    <!-- Meta tags for SEO -->
+    <meta name="description" content="UrbanMove Ride-Sharing Cloud Operations Dashboard for AWS Cloud Case Studies. Features KPIs, analytics, CRUD controls, and system health monitors.">
+    <meta name="author" content="UrbanMove Arch Team">
+
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar-wrapper" class="border-end">
+            <div class="sidebar-heading text-center py-4 border-bottom">
+                <span class="fs-4 fw-bold logo-text">
+                    <i class="bi bi-rocket-takeoff-fill me-2 logo-icon"></i>UrbanMove
+                </span>
+                <div class="small-text-muted mt-1">Cloud Ops Portal</div>
+            </div>
+            
+            <div class="list-group list-group-flush my-3 px-3">
+                <a href="{{ url_for('dashboard') }}" class="list-group-item list-group-item-action bg-transparent second-text fw-bold {% if request.path == '/' %}active{% endif %}">
+                    <i class="bi bi-speedometer2 me-2"></i>Overview
+                </a>
+                <a href="{{ url_for('list_drivers') }}" class="list-group-item list-group-item-action bg-transparent second-text fw-bold {% if request.path == '/drivers' %}active{% endif %}">
+                    <i class="bi bi-people-fill me-2"></i>Drivers
+                </a>
+                <a href="{{ url_for('list_rides') }}" class="list-group-item list-group-item-action bg-transparent second-text fw-bold {% if request.path == '/rides' %}active{% endif %}">
+                    <i class="bi bi-car-front-fill me-2"></i>Rides
+                </a>
+                <a href="{{ url_for('list_reports') }}" class="list-group-item list-group-item-action bg-transparent second-text fw-bold {% if request.path == '/reports' %}active{% endif %}">
+                    <i class="bi bi-bar-chart-line-fill me-2"></i>Reports
+                </a>
+                <a href="{{ url_for('settings') }}" class="list-group-item list-group-item-action bg-transparent second-text fw-bold {% if request.path == '/settings' %}active{% endif %}">
+                    <i class="bi bi-gear-fill me-2"></i>Settings
+                </a>
+            </div>
+            
+            <div class="sidebar-footer p-3 text-center border-top">
+                <small class="text-secondary">AWS Case Study v1.0</small>
+            </div>
+        </aside>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content Wrapper -->
+        <div id="page-content-wrapper">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3 px-4 border-bottom">
+                <div class="d-flex align-items-center w-100">
+                    <button class="btn btn-outline-secondary me-3" id="menu-toggle">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    
+                    <h1 class="navbar-brand fs-4 m-0 fw-semibold d-none d-sm-inline">Ride-Sharing Cloud Operations Dashboard</h1>
+                    <h1 class="navbar-brand fs-5 m-0 fw-semibold d-inline d-sm-none">UrbanMove</h1>
+                    
+                    <!-- Right-aligned components -->
+                    <div class="ms-auto d-flex align-items-center gap-3">
+                        <!-- Database Connection Status indicator -->
+                        {% if db_status_ok %}
+                        <div class="badge bg-success-glow d-flex align-items-center gap-1 py-2 px-3">
+                            <span class="pulse-dot bg-success"></span>
+                            <span class="d-none d-md-inline fw-semibold text-success">DB connected</span>
+                        </div>
+                        {% else %}
+                        <div class="badge bg-danger-glow d-flex align-items-center gap-1 py-2 px-3">
+                            <span class="pulse-dot bg-danger"></span>
+                            <span class="d-none d-md-inline fw-semibold text-danger">DB disconnected</span>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- AWS simulated cloud deployment status badge -->
+                        <div class="badge bg-primary-glow d-flex align-items-center gap-1 py-2 px-3">
+                            <i class="bi bi-cloud-check-fill text-primary-accent"></i>
+                            <span class="d-none d-md-inline fw-semibold text-primary-accent">AWS EC2 Ready</span>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main dashboard content area -->
+            <main class="container-fluid px-4 py-4">
+                
+                <!-- Display Bootstrap Alerts from Flask Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                    <div class="row">
+                      <div class="col-12">
+                        {% for category, message in messages %}
+                          <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show shadow-sm" role="alert">
+                            {% if category == 'success' %}
+                              <i class="bi bi-check-circle-fill me-2"></i>
+                            {% elif category == 'warning' %}
+                              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            {% else %}
+                              <i class="bi bi-exclamation-octagon-fill me-2"></i>
+                            {% endif %}
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  {% endif %}
+                {% endwith %}
+
+                <!-- Content Block -->
+                {% if error_code %}
+                <div class="row min-vh-75 align-items-center justify-content-center text-center">
+                    <div class="col-md-6">
+                        <div class="card card-glow border-0 p-5 shadow-lg">
+                            <div class="card-body">
+                                <h1 class="display-1 text-danger fw-bold m-0"><i class="bi bi-exclamation-triangle-fill"></i></h1>
+                                <h2 class="display-5 text-white fw-semibold mt-3">{{ error_code }} Error</h2>
+                                <p class="text-secondary mt-3 fs-5">{{ error_message }}</p>
+                                <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg mt-4 px-4 py-2">
+                                    <i class="bi bi-house-door-fill me-2"></i>Return to Overview
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                    {% block content %}{% endblock %}
+                {% endif %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Sidebar Toggle Script -->
+    <script>
+        var el = document.getElementById("wrapper");
+        var toggleButton = document.getElementById("menu-toggle");
+
+        toggleButton.onclick = function () {
+            el.classList.toggle("toggled");
+        };
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

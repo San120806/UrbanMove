@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block title %}UrbanMove - Operations Overview{% endblock %}
+
+{% block content %}
+<!-- Page Title and Quick Stats -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="fw-bold text-white">Operations Overview</h2>
+        <p class="text-secondary">Real-time cloud analytics and operational metrics for the UrbanMove ride-sharing platform.</p>
+    </div>
+</div>
+
+<!-- KPI Cards Row -->
+<div class="row g-4 mb-4">
+    <!-- Total Rides -->
+    <div class="col-md-4 col-xl-2 col-sm-6">
+        <div class="card card-kpi p-3 border-0 h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-secondary fw-semibold mb-1">Total Rides</h6>
+                    <h3 class="fw-bold mb-0 text-white">{{ kpis.get('total_rides', 0) }}</h3>
+                </div>
+                <div class="kpi-icon bg-primary-glow text-primary-accent">
+                    <i class="bi bi-car-front-fill"></i>
+                </div>
+            </div>
+            <div class="mt-2 text-secondary fs-7">All recorded bookings</div>
+        </div>
+    </div>
+    
+    <!-- Active Drivers -->
+    <div class="col-md-4 col-xl-2 col-sm-6">
+        <div class="card card-kpi p-3 border-0 h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-secondary fw-semibold mb-1">Active Drivers</h6>
+                    <h3 class="fw-bold mb-0 text-success">{{ kpis.get('active_drivers', 0) }}</h3>
+                </div>
+                <div class="kpi-icon bg-success-glow text-success">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+            </div>
+            <div class="mt-2 text-secondary fs-7">Drivers currently online</div>
+        </div>
+    </div>
+
+    <!-- Total Revenue -->
+    <div class="col-md-4 col-xl-2 col-sm-6">
+        <div class="card card-kpi p-3 border-0 h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-secondary fw-semibold mb-1">Total Revenue</h6>
+                    <h3 class="fw-bold mb-0 text-warning">${{ "{:,.2f}".format(kpis.get('total_revenue', 0.0)) }}</h3>
+                </div>
+                <div class="kpi-icon bg-warning-glow text-warning">
+                    <i class="bi bi-currency-dollar"></i>
+                </div>
+            </div>
+            <div class="mt-2 text-secondary fs-7">From completed trips</div>
+        </div>
+    </div>
+
+    <!-- Completed Trips -->
+    <div class="col-md-4 col-xl-2 col-sm-6">
+        <div class="card card-kpi p-3 border-0 h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-secondary fw-semibold mb-1">Completed</h6>
+                    <h3 class="fw-bold mb-0 text-success">{{ kpis.get('completed_trips', 0) }}</h3>
+                </div>
+                <div class="kpi-icon bg-success-glow text-success">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+            </div>
+            <div class="mt-2 text-secondary fs-7">Trips safely delivered</div>
+        </div>
+    </div>
+
+    <!-- Cancelled Trips -->
+    <div class="col-md-4 col-xl-2 col-sm-6">
+        <div class="card card-kpi p-3 border-0 h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-secondary fw-semibold mb-1">Cancelled</h6>
+                    <h3 class="fw-bold mb-0 text-danger">{{ kpis.get('cancelled_trips', 0) }}</h3>
+                </div>
+                <div class="kpi-icon bg-danger-glow text-danger">
+                    <i class="bi bi-x-circle-fill"></i>
+                </div>
+            </div>
+            <div class="mt-2 text-secondary fs-7">Rides aborted by user/driver</div>
+        </div>
+    </div>
+
+    <!-- Active Cities -->
+    <div class="col-md-4 col-xl-2 col-sm-6">
+        <div class="card card-kpi p-3 border-0 h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-secondary fw-semibold mb-1">Active Cities</h6>
+                    <h3 class="fw-bold mb-0 text-primary-accent">{{ kpis.get('active_cities', 0) }}</h3>
+                </div>
+                <div class="kpi-icon bg-primary-glow text-primary-accent">
+                    <i class="bi bi-geo-alt-fill"></i>
+                </div>
+            </div>
+            <div class="mt-2 text-secondary fs-7">Metros with active drivers</div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row 1: Line (Revenue Trends) & Doughnut (Driver Distribution) -->
+<div class="row g-4 mb-4">
+    <!-- Revenue Chart -->
+    <div class="col-lg-8">
+        <div class="card card-glow border-0 p-4 h-100">
+            <h5 class="fw-semibold text-white mb-4"><i class="bi bi-graph-up me-2 text-primary-accent"></i>Revenue Trends ($)</h5>
+            <div style="position: relative; height: 320px; width: 100%;">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Driver Status Chart -->
+    <div class="col-lg-4">
+        <div class="card card-glow border-0 p-4 h-100">
+            <h5 class="fw-semibold text-white mb-4"><i class="bi bi-pie-chart-fill me-2 text-success"></i>Driver Status</h5>
+            <div style="position: relative; height: 320px; width: 100%;" class="d-flex align-items-center justify-content-center">
+                <canvas id="driverStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row 2: Bar (Ride Volume) & Table (Recent Activity) -->
+<div class="row g-4">
+    <!-- Ride Volume Chart -->
+    <div class="col-lg-6">
+        <div class="card card-glow border-0 p-4 h-100">
+            <h5 class="fw-semibold text-white mb-4"><i class="bi bi-bar-chart-fill me-2 text-warning"></i>Ride Volume Activity</h5>
+            <div style="position: relative; height: 300px; width: 100%;">
+                <canvas id="volumeChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Rides Table -->
+    <div class="col-lg-6">
+        <div class="card card-glow border-0 p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-semibold text-white m-0"><i class="bi bi-clock-history me-2 text-primary-accent"></i>Recent Bookings</h5>
+                <a href="{{ url_for('list_rides') }}" class="btn btn-sm btn-outline-secondary">View All</a>
+            </div>
+            
+            <div class="table-responsive-custom">
+                <table class="table table-dark-custom table-hover">
+                    <thead>
+                        <tr>
+                            <th>Ride ID</th>
+                            <th>Driver</th>
+                            <th>Locations</th>
+                            <th>Fare</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if recent_rides %}
+                            {% for ride in recent_rides %}
+                            <tr>
+                                <td class="fw-semibold">#{{ ride.ride_id }}</td>
+                                <td>{{ ride.driver_name or 'Unassigned' }}</td>
+                                <td>
+                                    <div class="text-white small fw-bold">{{ ride.pickup_location }}</div>
+                                    <div class="text-secondary small">to {{ ride.drop_location }}</div>
+                                </td>
+                                <td class="fw-semibold text-warning">${{ "{:,.2f}".format(ride.fare) }}</td>
+                                <td>
+                                    {% if ride.status == 'Completed' %}
+                                        <span class="badge-status badge-completed">Completed</span>
+                                    {% elif ride.status == 'Ongoing' %}
+                                        <span class="badge-status badge-ongoing">Ongoing</span>
+                                    {% else %}
+                                        <span class="badge-status badge-cancelled">Cancelled</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-secondary py-4">No recent rides found.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Custom Chart Loading Script -->
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% endblock %}

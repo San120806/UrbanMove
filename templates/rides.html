@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+
+{% block title %}UrbanMove - Ride Management{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-sm-6">
+        <h2 class="fw-bold text-white">Ride Management</h2>
+        <p class="text-secondary">Track, dispatch, and manage ride-sharing transactions.</p>
+    </div>
+    <div class="col-sm-6 text-sm-end">
+        <button class="btn btn-primary px-4 py-2" data-bs-toggle="modal" data-bs-target="#addRideModal">
+            <i class="bi bi-plus-circle-fill me-2"></i>Book / Add Ride
+        </button>
+    </div>
+</div>
+
+<!-- Rides Table Card -->
+<div class="row">
+    <div class="col-12">
+        <div class="card card-glow border-0 p-4">
+            <div class="table-responsive-custom">
+                <table class="table table-dark-custom table-hover">
+                    <thead>
+                        <tr>
+                            <th>Ride ID</th>
+                            <th>Driver</th>
+                            <th>Pickup Location</th>
+                            <th>Drop Location</th>
+                            <th>Fare</th>
+                            <th>Ride Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if rides %}
+                            {% for ride in rides %}
+                            <tr>
+                                <td class="fw-semibold">#{{ ride.ride_id }}</td>
+                                <td class="fw-bold text-white">
+                                    {% if ride.driver_name %}
+                                        {{ ride.driver_name }}
+                                    {% else %}
+                                        <span class="text-secondary small italic">Unassigned</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ ride.pickup_location }}</td>
+                                <td>{{ ride.drop_location }}</td>
+                                <td class="fw-semibold text-warning">${{ "{:,.2f}".format(ride.fare) }}</td>
+                                <td>{{ ride.ride_date.strftime('%Y-%m-%d %H:%M') if ride.ride_date else 'N/A' }}</td>
+                                <td>
+                                    {% if ride.status == 'Completed' %}
+                                        <span class="badge-status badge-completed">Completed</span>
+                                    {% elif ride.status == 'Ongoing' %}
+                                        <span class="badge-status badge-ongoing">Ongoing</span>
+                                    {% else %}
+                                        <span class="badge-status badge-cancelled">Cancelled</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-info me-2" data-bs-toggle="modal" data-bs-target="#editRideModal{{ ride.ride_id }}">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteRideModal{{ ride.ride_id }}">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Edit Ride Modal -->
+                            <div class="modal fade" id="editRideModal{{ ride.ride_id }}" tabindex="-1" aria-labelledby="editRideModalLabel{{ ride.ride_id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <form action="{{ url_for('edit_ride', ride_id=ride.ride_id) }}" method="POST">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="editRideModalLabel{{ ride.ride_id }}">
+                                                    <i class="bi bi-pencil-square me-2 text-info"></i>Modify Ride Record (ID: #{{ ride.ride_id }})
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label for="driver_id{{ ride.ride_id }}" class="form-label">Assign Driver</label>
+                                                    <select class="form-select" id="driver_id{{ ride.ride_id }}" name="driver_id">
+                                                        <option value="">-- Leave Unassigned --</option>
+                                                        {% for d in drivers %}
+                                                        <option value="{{ d.driver_id }}" {% if ride.driver_id == d.driver_id %}selected{% endif %}>
+                                                            {{ d.name }} (ID: {{ d.driver_id }})
+                                                        </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="pickup_location{{ ride.ride_id }}" class="form-label">Pickup Location</label>
+                                                        <input type="text" class="form-control" id="pickup_location{{ ride.ride_id }}" name="pickup_location" value="{{ ride.pickup_location }}" required>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="drop_location{{ ride.ride_id }}" class="form-label">Drop Location</label>
+                                                        <input type="text" class="form-control" id="drop_location{{ ride.ride_id }}" name="drop_location" value="{{ ride.drop_location }}" required>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="fare{{ ride.ride_id }}" class="form-label">Fare ($)</label>
+                                                        <input type="number" step="0.01" min="0" class="form-control" id="fare{{ ride.ride_id }}" name="fare" value="{{ ride.fare }}" required>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="status{{ ride.ride_id }}" class="form-label">Status</label>
+                                                        <select class="form-select" id="status{{ ride.ride_id }}" name="status" required>
+                                                            <option value="Completed" {% if ride.status == 'Completed' %}selected{% endif %}>Completed</option>
+                                                            <option value="Ongoing" {% if ride.status == 'Ongoing' %}selected{% endif %}>Ongoing</option>
+                                                            <option value="Cancelled" {% if ride.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="ride_date{{ ride.ride_id }}" class="form-label">Ride Date & Time</label>
+                                                    <input type="datetime-local" class="form-control" id="ride_date{{ ride.ride_id }}" name="ride_date" 
+                                                           value="{% if ride.ride_date %}{{ ride.ride_date.strftime('%Y-%m-%dT%H:%M') }}{% endif %}" required>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-info text-dark fw-bold">Save Changes</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Delete Ride Modal -->
+                            <div class="modal fade" id="deleteRideModal{{ ride.ride_id }}" tabindex="-1" aria-labelledby="deleteRideModalLabel{{ ride.ride_id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <form action="{{ url_for('delete_ride', ride_id=ride.ride_id) }}" method="POST">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title text-danger" id="deleteRideModalLabel{{ ride.ride_id }}">
+                                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Delete Ride Log
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body text-center py-4">
+                                                <p class="fs-5 text-white">Are you sure you want to delete ride log <strong>#{{ ride.ride_id }}</strong>?</p>
+                                                <p class="text-secondary small">This operational log will be permanently purged from the cloud datastore.</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-danger">Confirm Delete</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center text-secondary py-5">
+                                    <i class="bi bi-car-front-fill fs-1 d-block mb-3 text-secondary"></i>
+                                    No ride logs stored in the system.
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Ride Modal -->
+<div class="modal fade" id="addRideModal" tabindex="-1" aria-labelledby="addRideModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="{{ url_for('add_ride') }}" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addRideModalLabel">
+                        <i class="bi bi-plus-circle-fill me-2 text-primary-accent"></i>Book & Dispatch Ride
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="driver_id" class="form-label">Assign Driver</label>
+                        <select class="form-select" id="driver_id" name="driver_id">
+                            <option value="" selected>-- Leave Unassigned --</option>
+                            {% for d in drivers %}
+                            <option value="{{ d.driver_id }}">{{ d.name }} (ID: {{ d.driver_id }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="pickup_location" class="form-label">Pickup Location</label>
+                            <input type="text" class="form-control" id="pickup_location" name="pickup_location" placeholder="e.g. Times Square" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="drop_location" class="form-label">Drop Location</label>
+                            <input type="text" class="form-control" id="drop_location" name="drop_location" placeholder="e.g. JFK Airport" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="fare" class="form-label">Fare ($)</label>
+                            <input type="number" step="0.01" min="0" class="form-control" id="fare" name="fare" placeholder="e.g. 45.50" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="Completed">Completed</option>
+                                <option value="Ongoing" selected>Ongoing</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ride_date" class="form-label">Ride Date & Time</label>
+                        <!-- Automatically defaults to current time via Javascript -->
+                        <input type="datetime-local" class="form-control" id="ride_date" name="ride_date" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Dispatch Ride</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Autofill current local time to the Add Ride Modal date picker
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateInput = document.getElementById('ride_date');
+        if(dateInput) {
+            const now = new Date();
+            // Format to YYYY-MM-DDTHH:MM local time
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            dateInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+    });
+</script>
+{% endblock %}
