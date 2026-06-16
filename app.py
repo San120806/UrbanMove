@@ -67,7 +67,7 @@ def get_analytics():
     try:
         # 1. Daily Revenue Chart Data (last 30 days)
         revenue_data = db_helper.execute_query("""
-            SELECT DATE_FORMAT(ride_date, '%M %d') as label, SUM(fare) as val 
+            SELECT DATE_FORMAT(ride_date, '%%M %%d') as label, SUM(fare) as val 
             FROM rides 
             WHERE status = 'Completed' 
             GROUP BY DATE(ride_date) 
@@ -76,7 +76,7 @@ def get_analytics():
         
         # 2. Daily Ride Volume Chart Data (last 30 days)
         volume_data = db_helper.execute_query("""
-            SELECT DATE_FORMAT(ride_date, '%M %d') as label, COUNT(*) as val 
+            SELECT DATE_FORMAT(ride_date, '%%M %%d') as label, COUNT(*) as val 
             FROM rides 
             GROUP BY DATE(ride_date) 
             ORDER BY DATE(ride_date) ASC
@@ -258,7 +258,7 @@ def list_reports():
         """)
         
         monthly_rev = db_helper.execute_query("""
-            SELECT DATE_FORMAT(ride_date, '%Y-%m') as month, SUM(fare) as total 
+            SELECT DATE_FORMAT(ride_date, '%%Y-%%m') as month, SUM(fare) as total 
             FROM rides 
             WHERE status = 'Completed' 
             GROUP BY month 

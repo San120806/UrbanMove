@@ -226,14 +226,15 @@ body {
 }
 
 .table-dark-custom {
-    color: var(--text-primary);
+    color: var(--text-primary) !important;
+    background-color: var(--bg-card) !important;
     margin: 0;
 }
 
 .table-dark-custom th {
-    background-color: rgba(255, 255, 255, 0.02);
-    border-bottom: 2px solid var(--border-color);
-    color: var(--text-secondary);
+    background-color: rgba(255, 255, 255, 0.02) !important;
+    border-bottom: 2px solid var(--border-color) !important;
+    color: var(--text-secondary) !important;
     font-weight: 600;
     padding: 15px 20px;
     font-size: 0.85rem;
@@ -241,13 +242,23 @@ body {
 }
 
 .table-dark-custom td {
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
     padding: 15px 20px;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color) !important;
     vertical-align: middle;
 }
 
+.table-dark-custom tr {
+    background-color: var(--bg-card) !important;
+}
+
+.table-dark-custom tr:hover td {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
 .table-dark-custom tr:last-child td {
-    border-bottom: none;
+    border-bottom: none !important;
 }
 
 /* Custom badges inside tables */
